@@ -1,6 +1,6 @@
 import os
 import time
-
+import logging
 import requests
 import telegram
 from dotenv import load_dotenv
@@ -21,6 +21,7 @@ def get_text(attempt):
 
 def main():
     load_dotenv()
+    logging.warning('Бот запущен1')
     timestamp = time.time()
     bot = telegram.Bot(token=os.environ["TG_TOKEN"])
     while True:
@@ -41,7 +42,7 @@ def main():
             elif answer["status"] == "timeout":
                 timestamp = answer["timestamp_to_request"]
         except requests.exceptions.ReadTimeout:
-            pass
+            logging.warning('Бот запущен')
         except requests.ConnectionError:
             time.sleep(30)
 
