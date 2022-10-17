@@ -1,1 +1,1 @@
-web: python3 review-bot1.py 0.0.0.0:$PORT
+web: python3 review-bot1.py
