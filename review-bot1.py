@@ -1,13 +1,15 @@
+import logging
 import os
 import time
-import logging
+
 import requests
 import telegram
 from dotenv import load_dotenv
 
+logger = logging.getLogger("Logger")
+
 
 class TelegramLogsHandler(logging.Handler):
-
     def __init__(self, tg_bot, chat_id):
         super().__init__()
         self.chat_id = chat_id
@@ -33,15 +35,14 @@ def get_text(attempt):
 
 
 def main():
-    load_dotenv()
     timestamp = time.time()
+    load_dotenv()
     bot = telegram.Bot(token=os.environ["TG_TOKEN"])
-    logger = logging.getLogger('Logger')
     logger.setLevel(logging.INFO)
     logger.addHandler(TelegramLogsHandler(bot, os.environ["TG_CHAT_ID"]))
-    logger.info('Бот запущен')
-    try:
-        while True:
+    logger.info("Бот запущен")
+    while True:
+        try:
             headers = {"Authorization": f"Token {os.environ['DEVMAN_TOKEN']}"}
             params = {"timestamp": timestamp, "timeout": 10}
             response = requests.get(
@@ -50,7 +51,6 @@ def main():
             response.raise_for_status()
             answer = response.json()
             if answer["status"] == "found":
-                logger.info('Бот работает')
                 timestamp = answer["last_attempt_timestamp"]
                 new_attempt = answer["new_attempts"][0]
                 bot.send_message(
@@ -58,17 +58,15 @@ def main():
                 )
             elif answer["status"] == "timeout":
                 timestamp = answer["timestamp_to_request"]
-    except requests.exceptions.ReadTimeout:
-        logger.warning('Ошибка ReadTimeout')
-        pass
-    except requests.ConnectionError:
-        logger.warning('Ошибка ConnectionError')
-        time.sleep(30)
-    except Exception as err:
-        logger.info("Бот упал с ошибкой:")
-        logger.warning(err, exc_info=True)        
+        except requests.exceptions.ReadTimeout:
+            pass
+        except requests.ConnectionError:
+            time.sleep(30)
+        except Exception as err:
+            logger.warning("Бот упал с ошибкой:")
+            logger.warning(err, exc_info=True)
+            break
 
 
 if __name__ == "__main__":
     main()
-    
