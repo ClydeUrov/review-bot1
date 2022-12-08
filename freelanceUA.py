@@ -47,6 +47,7 @@ if __name__ == '__main__':
 	wb.save('example.xlsx')
 	wb.close()
 	bot.sendDocument(
-		chat_id="513965977", 
+		chat_id="513965977",
 		document=open('./example.xlsx', 'rb')
 	)
+	time.sleep(604800)
